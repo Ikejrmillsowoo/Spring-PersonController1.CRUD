@@ -27,8 +27,13 @@ public class PersonController {
     @PutMapping("/{id}")
     Person updatePerson(@RequestBody Person p){
        Person oldPerson =  getPerson(p.getId());
-       oldPerson.setFirstName(p.getFirstName());
-       oldPerson.setLastName(p.getLastName());
+       if (oldPerson!= null){
+           oldPerson.setFirstName(p.getFirstName());
+           oldPerson.setLastName(p.getLastName());
+       } else {
+          oldPerson =  createPerson(p);
+       }
+       repository.save(oldPerson);
         return oldPerson;
     }
 
