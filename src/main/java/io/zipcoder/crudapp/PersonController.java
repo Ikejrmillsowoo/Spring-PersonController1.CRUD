@@ -1,6 +1,8 @@
 package io.zipcoder.crudapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,26 +14,30 @@ public class PersonController {
     PersonRepository repository;
 
     @PostMapping
-    Person createPerson(@RequestBody Person p){
+    ResponseEntity<Person> createPerson(@RequestBody Person p){
         Person newPerson = repository.save(p);
-        return newPerson;
+
+        return new ResponseEntity(newPerson, HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    Person getPerson(@PathVariable int id){
-       return repository.findOne(id);
+    ResponseEntity<Person> getPerson(@PathVariable int id){
+        Person p = repository.findOne(id);
+       return new ResponseEntity(p, HttpStatus.OK);
     }
     @GetMapping
-    List<Person> getPersonList(){
-        return (List<Person>) repository.findAll();
+    ResponseEntity<List<Person>> getPersonList(){
+        List<Person> list = (List<Person>) repository.findAll();
+        return new ResponseEntity(list, HttpStatus.OK);
     }
+
     @PutMapping("/{id}")
     Person updatePerson(@RequestBody Person p){
-       Person oldPerson =  getPerson(p.getId());
+       Person oldPerson = getPerson(p.getId()).getBody();
        if (oldPerson!= null){
            oldPerson.setFirstName(p.getFirstName());
            oldPerson.setLastName(p.getLastName());
        } else {
-          oldPerson =  createPerson(p);
+          oldPerson = createPerson(p).getBody();
        }
        repository.save(oldPerson);
         return oldPerson;
@@ -39,7 +45,7 @@ public class PersonController {
 
     @DeleteMapping("/{id}")
     void deletePerson(@PathVariable int id){
-    Person personToDelete = getPerson(id);
+    Person personToDelete = getPerson(id).getBody();
     repository.delete(personToDelete);
     }
 
